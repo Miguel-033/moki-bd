@@ -22,15 +22,9 @@ db.init_app(app)
 def home():
     return "Cuentabot API работает!"
 
-# 📚 Получить все сказки или по уровню
 @app.route('/fairy-tales', methods=['GET'])
 def get_all_stories():
-    level = request.args.get('level')
-    if level:
-        tales = FairyTale.query.filter(FairyTale.level.ilike(level)).all()
-    else:
-        tales = FairyTale.query.all()
-
+    tales = FairyTale.query.all()
     return jsonify([{
         'id': t.id,
         'slug': t.slug,
@@ -40,7 +34,6 @@ def get_all_stories():
         'audio_url': t.audio_url
     } for t in tales])
 
-# 📖 Получить сказку по slug
 @app.route('/fairy-tales/<slug>', methods=['GET'])
 def get_story(slug):
     tale = FairyTale.query.filter_by(slug=slug).first()
@@ -55,7 +48,6 @@ def get_story(slug):
         })
     return jsonify({'error': 'Сказка не найдена'}), 404
 
-# ➕ Добавить сказку
 @app.route('/fairy-tales', methods=['POST'])
 def add_story():
     data = request.get_json()
@@ -64,11 +56,20 @@ def add_story():
         title=data['title'],
         level=data['level'],
         text=data['text'],
-        audio_url=data['audio_url']
+        audio_url=data.get('audio_url', '')
     )
     db.session.add(tale)
     db.session.commit()
     return jsonify({'message': 'Сказка добавлена успешно'}), 201
+
+@app.route('/fairy-tales/<int:id>', methods=['DELETE'])
+def delete_story(id):
+    tale = FairyTale.query.get(id)
+    if tale:
+        db.session.delete(tale)
+        db.session.commit()
+        return jsonify({'message': 'Сказка удалена'}), 200
+    return jsonify({'error': 'Сказка не найдена'}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)
