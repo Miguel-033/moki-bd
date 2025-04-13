@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -15,6 +15,7 @@ CORS(app)
 # Настройка подключения к базе данных
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.template_folder = "admin/templates"  # путь к HTML-шаблонам
 
 db.init_app(app)
 
@@ -22,6 +23,13 @@ db.init_app(app)
 def home():
     return "Cuentabot API работает!"
 
+# ========== АДМИНКА ==========
+@app.route('/admin')
+def admin():
+    tales = FairyTale.query.all()
+    return render_template('admin.html', tales=tales)
+
+# ========== API МАРШРУТЫ ========== (оставляем как было)
 @app.route('/fairy-tales', methods=['GET'])
 def get_all_stories():
     tales = FairyTale.query.all()

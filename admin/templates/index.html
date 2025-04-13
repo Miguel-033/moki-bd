@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Panel</title>
+  </head>
+  <body>
+    <h1>Добавить сказку</h1>
+    <form method="POST">
+      <input type="text" name="title" placeholder="Название" required /><br />
+      <input type="text" name="slug" placeholder="Slug" required /><br />
+      <input
+        type="text"
+        name="level"
+        placeholder="Уровень (A1-B2)"
+        required
+      /><br />
+      <textarea name="text" placeholder="Текст сказки" required></textarea
+      ><br />
+      <input
+        type="text"
+        name="audio_url"
+        placeholder="Ссылка на аудио (можно пусто)"
+      /><br />
+      <button type="submit">Добавить</button>
+    </form>
+
+    <h2>Список сказок</h2>
+    <ul>
+      {% for tale in tales %}
+      <li>
+        <strong>{{ tale.title }}</strong> ({{ tale.level }}) —
+        <form
+          method="POST"
+          action="/admin/delete/{{ tale.id }}"
+          style="display: inline"
+        >
+          <button type="submit">Удалить</button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
