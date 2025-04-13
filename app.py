@@ -6,16 +6,14 @@ import os
 from models import FairyTale
 from db import db
 
-# Загрузка переменных окружения
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-# Конфигурация базы данных
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.template_folder = "admin/templates"  # Путь к HTML-шаблонам
+app.template_folder = "admin/templates"
 
 db.init_app(app)
 
@@ -23,8 +21,7 @@ db.init_app(app)
 def home():
     return "Cuentabot API работает!"
 
-# ========== АДМИН ПАНЕЛЬ ==========
-
+# ========== АДМИНКА ==========
 @app.route('/admin', methods=['GET'])
 def admin():
     tales = FairyTale.query.all()
@@ -53,7 +50,6 @@ def admin_delete(id):
     return redirect(url_for('admin'))
 
 # ========== API ==========
-
 @app.route('/fairy-tales', methods=['GET'])
 def get_all_stories():
     tales = FairyTale.query.all()

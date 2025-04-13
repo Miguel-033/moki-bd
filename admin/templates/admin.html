@@ -5,103 +5,203 @@
     <title>Админ-панель сказок</title>
     <style>
       body {
-        font-family: Arial, sans-serif;
-        padding: 20px;
-      }
-      h1,
-      h2 {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f6f8;
+        margin: 0;
+        padding: 40px;
         color: #333;
       }
-      form {
-        margin-bottom: 20px;
+
+      h1,
+      h2 {
+        color: #2c3e50;
       }
+
+      .container {
+        display: flex;
+        gap: 40px;
+        flex-wrap: wrap;
+      }
+
+      .card {
+        background: #fff;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        width: 100%;
+        max-width: 500px;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+      }
+
       input,
       textarea,
       select {
         width: 100%;
-        margin: 5px 0;
-        padding: 8px;
+        padding: 10px;
+        margin-top: 8px;
+        margin-bottom: 16px;
         font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
       }
+
       button {
-        padding: 8px 15px;
+        background-color: #2ecc71;
+        color: white;
+        padding: 10px 20px;
         font-size: 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        align-self: flex-start;
       }
+
+      button:hover {
+        background-color: #27ae60;
+      }
+
+      .level-buttons {
+        margin-bottom: 20px;
+      }
+
       .level-buttons button {
-        margin: 5px;
+        background-color: #3498db;
+        margin: 5px 5px 5px 0;
+        color: white;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
       }
+
+      .level-buttons button:hover {
+        background-color: #2980b9;
+      }
+
       .tales-container {
         display: none;
+        margin-top: 20px;
       }
+
       .tales-container.active {
         display: block;
       }
+
       .tale-item {
-        margin-bottom: 10px;
-        border-bottom: 1px solid #ccc;
-        padding-bottom: 5px;
+        padding: 12px;
+        background: #ffffff;
+        margin-bottom: 12px;
+        border-left: 4px solid #3498db;
+        border-radius: 4px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
+
+      .tale-item strong {
+        font-size: 16px;
+      }
+
+      .tale-item form {
+        margin: 0;
+      }
+
+      .tale-item button {
+        background-color: #e74c3c;
+        padding: 6px 12px;
+      }
+
+      .tale-item button:hover {
+        background-color: #c0392b;
+      }
+
       .pagination {
-        margin-top: 10px;
+        margin-top: 15px;
+        text-align: center;
       }
+
       .pagination button {
-        margin: 2px;
+        margin: 4px;
+        padding: 6px 12px;
+        background-color: #95a5a6;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+
+      .pagination button:hover {
+        background-color: #7f8c8d;
       }
     </style>
   </head>
   <body>
-    <h1>Добавить сказку</h1>
-    <form method="POST" action="/admin/add">
-      <input
-        type="text"
-        id="title"
-        name="title"
-        placeholder="Название"
-        required
-      />
-      <input type="text" id="slug" name="slug" placeholder="Slug" required />
-      <select name="level" required>
-        <option value="">Выбери уровень</option>
-        <option value="A1">A1</option>
-        <option value="A2">A2</option>
-        <option value="B1">B1</option>
-        <option value="B2">B2</option>
-      </select>
-      <textarea name="text" placeholder="Текст сказки" required></textarea>
-      <input
-        type="text"
-        name="audio_url"
-        placeholder="Ссылка на аудио (необязательно)"
-      />
-      <button type="submit">Добавить</button>
-    </form>
-
-    <h2>Список сказок</h2>
-    <div class="level-buttons">
-      <button onclick="showLevel('A1')">A1</button>
-      <button onclick="showLevel('A2')">A2</button>
-      <button onclick="showLevel('B1')">B1</button>
-      <button onclick="showLevel('B2')">B2</button>
-    </div>
-
-    {% for level in ['A1', 'A2', 'B1', 'B2'] %}
-    <div class="tales-container" id="level-{{ level }}">
-      {% set tales_by_level = tales | selectattr("level", "equalto", level) |
-      list %} {% for tale in tales_by_level %}
-      <div class="tale-item page-{{ level }}-{{ loop.index0 // 5 }}">
-        <strong>{{ tale.title }}</strong> ({{ tale.level }})
-        <form
-          method="POST"
-          action="/admin/delete/{{ tale.id }}"
-          style="display: inline"
-        >
-          <button type="submit">Удалить</button>
+    <div class="container">
+      <div class="card">
+        <h1>Добавить сказку</h1>
+        <form method="POST" action="/admin/add">
+          <input
+            type="text"
+            id="title"
+            name="title"
+            placeholder="Название"
+            required
+          />
+          <input
+            type="text"
+            id="slug"
+            name="slug"
+            placeholder="Slug"
+            required
+          />
+          <select name="level" required>
+            <option value="">Выбери уровень</option>
+            <option value="A1">A1</option>
+            <option value="A2">A2</option>
+            <option value="B1">B1</option>
+            <option value="B2">B2</option>
+          </select>
+          <textarea name="text" placeholder="Текст сказки" required></textarea>
+          <input
+            type="text"
+            name="audio_url"
+            placeholder="Ссылка на аудио (заполнится автоматически)"
+          />
+          <button type="submit">Добавить</button>
         </form>
       </div>
-      {% endfor %}
-      <div class="pagination" id="pagination-{{ level }}"></div>
+
+      <div class="card">
+        <h2>Список сказок</h2>
+        <div class="level-buttons">
+          <button onclick="showLevel('A1')">A1</button>
+          <button onclick="showLevel('A2')">A2</button>
+          <button onclick="showLevel('B1')">B1</button>
+          <button onclick="showLevel('B2')">B2</button>
+        </div>
+
+        {% for level in ['A1', 'A2', 'B1', 'B2'] %}
+        <div class="tales-container" id="level-{{ level }}">
+          {% set tales_by_level = tales | selectattr("level", "equalto", level)
+          | list %} {% for tale in tales_by_level %}
+          <div class="tale-item page-{{ level }}-{{ loop.index0 // 5 }}">
+            <strong>{{ tale.title }}</strong> ({{ tale.level }})
+            <form method="POST" action="/admin/delete/{{ tale.id }}">
+              <button type="submit">Удалить</button>
+            </form>
+          </div>
+          {% endfor %}
+          <div class="pagination" id="pagination-{{ level }}"></div>
+        </div>
+        {% endfor %}
+      </div>
     </div>
-    {% endfor %}
 
     <script>
       document.getElementById("title").addEventListener("input", function () {
@@ -127,7 +227,7 @@
           .querySelectorAll(`.page-${level}-*`)
           .forEach((el) => (el.style.display = "none"));
         const tales = document.querySelectorAll(`.page-${level}-${page}`);
-        tales.forEach((el) => (el.style.display = "block"));
+        tales.forEach((el) => (el.style.display = "flex"));
 
         const total = document.querySelectorAll(
           `[id="level-${level}"] .tale-item`
@@ -143,7 +243,7 @@
         }
       }
 
-      // Показать уровень A1 по умолчанию
+      // Показываем A1 по умолчанию
       showLevel("A1");
     </script>
   </body>
