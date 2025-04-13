@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -12,10 +12,10 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-# Настройка подключения к базе данных
+# Конфигурация базы данных
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.template_folder = "admin/templates"  # путь к HTML-шаблонам
+app.template_folder = "admin/templates"  # Путь к HTML-шаблонам
 
 db.init_app(app)
 
@@ -23,13 +23,37 @@ db.init_app(app)
 def home():
     return "Cuentabot API работает!"
 
-# ========== АДМИНКА ==========
-@app.route('/admin')
+# ========== АДМИН ПАНЕЛЬ ==========
+
+@app.route('/admin', methods=['GET'])
 def admin():
     tales = FairyTale.query.all()
     return render_template('admin.html', tales=tales)
 
-# ========== API МАРШРУТЫ ========== (оставляем как было)
+@app.route('/admin/add', methods=['POST'])
+def admin_add():
+    data = request.form
+    tale = FairyTale(
+        slug=data['slug'],
+        title=data['title'],
+        level=data['level'],
+        text=data['text'],
+        audio_url=data.get('audio_url', '')
+    )
+    db.session.add(tale)
+    db.session.commit()
+    return redirect(url_for('admin'))
+
+@app.route('/admin/delete/<int:id>', methods=['POST'])
+def admin_delete(id):
+    tale = FairyTale.query.get(id)
+    if tale:
+        db.session.delete(tale)
+        db.session.commit()
+    return redirect(url_for('admin'))
+
+# ========== API ==========
+
 @app.route('/fairy-tales', methods=['GET'])
 def get_all_stories():
     tales = FairyTale.query.all()
