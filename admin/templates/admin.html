@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Админ-панель сказок</title>
     <style>
+      /* Оставил весь твой CSS без изменений */
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         background-color: #f4f6f8;
@@ -11,18 +12,15 @@
         padding: 40px;
         color: #333;
       }
-
       h1,
       h2 {
         color: #2c3e50;
       }
-
       .container {
         display: flex;
         gap: 40px;
         flex-wrap: wrap;
       }
-
       .card {
         background: #fff;
         padding: 25px;
@@ -31,12 +29,10 @@
         width: 100%;
         max-width: 500px;
       }
-
       form {
         display: flex;
         flex-direction: column;
       }
-
       input,
       textarea,
       select {
@@ -49,7 +45,6 @@
         border-radius: 4px;
         box-sizing: border-box;
       }
-
       button {
         background-color: #2ecc71;
         color: white;
@@ -60,15 +55,12 @@
         cursor: pointer;
         align-self: flex-start;
       }
-
       button:hover {
         background-color: #27ae60;
       }
-
       .level-buttons {
         margin-bottom: 20px;
       }
-
       .level-buttons button {
         background-color: #3498db;
         margin: 5px 5px 5px 0;
@@ -79,20 +71,16 @@
         cursor: pointer;
         font-weight: bold;
       }
-
       .level-buttons button:hover {
         background-color: #2980b9;
       }
-
       .tales-container {
         display: none;
         margin-top: 20px;
       }
-
       .tales-container.active {
         display: block;
       }
-
       .tale-item {
         padding: 12px;
         background: #ffffff;
@@ -103,29 +91,23 @@
         justify-content: space-between;
         align-items: center;
       }
-
       .tale-item strong {
         font-size: 16px;
       }
-
       .tale-item form {
         margin: 0;
       }
-
       .tale-item button {
         background-color: #e74c3c;
         padding: 6px 12px;
       }
-
       .tale-item button:hover {
         background-color: #c0392b;
       }
-
       .pagination {
         margin-top: 15px;
         text-align: center;
       }
-
       .pagination button {
         margin: 4px;
         padding: 6px 12px;
@@ -135,12 +117,12 @@
         border-radius: 3px;
         cursor: pointer;
       }
-
       .pagination button:hover {
         background-color: #7f8c8d;
       }
     </style>
   </head>
+
   <body>
     <div class="container">
       <div class="card">
@@ -160,7 +142,7 @@
             placeholder="Slug"
             required
           />
-          <select name="level" required>
+          <select name="level" id="level" required>
             <option value="">Выбери уровень</option>
             <option value="A1">A1</option>
             <option value="A2">A2</option>
@@ -170,6 +152,7 @@
           <textarea name="text" placeholder="Текст сказки" required></textarea>
           <input
             type="text"
+            id="audio_url"
             name="audio_url"
             placeholder="Ссылка на аудио (заполнится автоматически)"
           />
@@ -204,6 +187,7 @@
     </div>
 
     <script>
+      // Генерация slug по названию
       document.getElementById("title").addEventListener("input", function () {
         const slug = this.value
           .toLowerCase()
@@ -211,8 +195,29 @@
           .trim()
           .replace(/\s+/g, "-");
         document.getElementById("slug").value = slug;
+        updateAudioUrl();
       });
 
+      // Автоматическая генерация audio_url
+      const slugInput = document.getElementById("slug");
+      const levelSelect = document.getElementById("level");
+      const audioUrlInput = document.getElementById("audio_url");
+      const BASE_AUDIO_URL = "https://moki-audio.vercel.app/";
+
+      function updateAudioUrl() {
+        const slug = slugInput.value.trim();
+        const level = levelSelect.value.trim().toLowerCase();
+        if (slug && level) {
+          audioUrlInput.value = `${BASE_AUDIO_URL}${level}/${slug}.ogg`;
+        } else {
+          audioUrlInput.value = "";
+        }
+      }
+
+      slugInput.addEventListener("input", updateAudioUrl);
+      levelSelect.addEventListener("change", updateAudioUrl);
+
+      // Функции для отображения сказок
       function showLevel(level) {
         document
           .querySelectorAll(".tales-container")
