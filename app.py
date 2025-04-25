@@ -23,11 +23,6 @@ db.init_app(app)
 def home():
     return "Cuentabot API работает!"
 
-# ✅ Временный маршрут инициализации базы
-@app.route('/init-db')
-def init_db():
-    db.create_all()
-    return "✅ Таблицы успешно созданы!"
 
 # ========== АДМИНКА ==========
 

@@ -2,9 +2,8 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Админ-панель</title>
+    <title>Админ-панель сказок и рассказов</title>
     <style>
-      /* Стили оставил аккуратные, чуть оптимизировал */
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         background-color: #f4f6f8;
@@ -12,15 +11,18 @@
         padding: 40px;
         color: #333;
       }
+
       h1,
       h2 {
         color: #2c3e50;
       }
+
       .container {
         display: flex;
-        flex-wrap: wrap;
         gap: 40px;
+        flex-wrap: wrap;
       }
+
       .card {
         background: #fff;
         padding: 25px;
@@ -29,20 +31,25 @@
         width: 100%;
         max-width: 500px;
       }
+
       form {
         display: flex;
         flex-direction: column;
       }
+
       input,
       textarea,
       select {
         width: 100%;
         padding: 10px;
-        margin: 8px 0;
+        margin-top: 8px;
+        margin-bottom: 16px;
         font-size: 16px;
         border: 1px solid #ccc;
         border-radius: 4px;
+        box-sizing: border-box;
       }
+
       button {
         background-color: #2ecc71;
         color: white;
@@ -53,93 +60,84 @@
         cursor: pointer;
         align-self: flex-start;
       }
+
       button:hover {
         background-color: #27ae60;
       }
-      .top-buttons {
+
+      .tabs {
         margin-bottom: 20px;
       }
-      .top-buttons button {
-        background-color: #3498db;
+      .tabs button {
         margin-right: 10px;
-        padding: 8px 14px;
-        font-weight: bold;
-        border: none;
+        background-color: #3498db;
         color: white;
-        border-radius: 4px;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
         cursor: pointer;
       }
-      .top-buttons button:hover {
-        background-color: #2980b9;
+
+      .tabs button.active {
+        background-color: #1d6fa5;
       }
-      .tales-container,
-      .stories-container {
-        display: none;
-      }
-      .tales-container.active,
-      .stories-container.active {
-        display: block;
-      }
-      .item {
-        padding: 10px;
-        margin-bottom: 10px;
-        background: #fff;
-        border-left: 4px solid #3498db;
-        border-radius: 4px;
+
+      .filters {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
       }
-      .item button {
-        background-color: #e74c3c;
-        padding: 6px 12px;
+
+      .filters select {
+        flex: 1;
+        padding: 8px;
       }
-      .item button:hover {
-        background-color: #c0392b;
+
+      .list {
+        min-height: 100px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 15px;
       }
     </style>
   </head>
-
   <body>
-    <div class="top-buttons">
-      <button onclick="switchMode('tales')">🏰 Сказки</button>
-      <button onclick="switchMode('stories')">📘 Рассказы</button>
+    <div class="tabs">
+      <button id="tab-tales" class="active" onclick="switchTab('tales')">
+        🧚 Сказки
+      </button>
+      <button id="tab-stories" onclick="switchTab('stories')">
+        📘 Рассказы
+      </button>
     </div>
 
     <div class="container">
       <div class="card">
         <h1 id="form-title">Добавить сказку</h1>
-        <form id="add-form" method="POST" action="/admin/add">
-          <input
-            type="text"
-            id="title"
-            name="title"
-            placeholder="Название"
-            required
-          />
-          <input
-            type="text"
-            id="slug"
-            name="slug"
-            placeholder="Slug"
-            required
-          />
-          <select id="level" name="level" required>
+        <form id="form" method="POST" action="/admin/add">
+          <input type="text" name="title" placeholder="Название" required />
+          <input type="text" name="slug" placeholder="Slug" required />
+          <select name="level" required>
             <option value="">Выбери уровень</option>
             <option value="A1">A1</option>
             <option value="A2">A2</option>
             <option value="B1">B1</option>
             <option value="B2">B2</option>
           </select>
-          <select id="genre" name="genre" required>
-            <!-- жанры будут подставляться динамически -->
+          <select name="genre" required id="genre-select">
+            <option value="">Выбери жанр</option>
+            <option value="Cuento clásico">Cuento clásico</option>
+            <option value="Fábula">Fábula</option>
+            <option value="Mito">Mito</option>
+            <option value="Leyenda">Leyenda</option>
           </select>
           <textarea name="text" placeholder="Текст" required></textarea>
           <input
             type="text"
-            id="audio_url"
             name="audio_url"
-            placeholder="Ссылка на аудио"
+            placeholder="Ссылка на аудио (заполнится автоматически)"
           />
           <button type="submit">Добавить</button>
         </form>
@@ -147,115 +145,61 @@
 
       <div class="card">
         <h2>Список</h2>
-
-        <div class="tales-container" id="tales-list">
-          {% for tale in tales %}
-          <div class="item">
-            <strong>{{ tale.title }}</strong> ({{ tale.level }}, {{ tale.genre
-            }})
-            <form method="POST" action="/admin/delete/{{ tale.id }}">
-              <button type="submit">Удалить</button>
-            </form>
-          </div>
-          {% endfor %}
+        <div class="filters">
+          <select id="filter-level">
+            <option value="">Все уровни</option>
+            <option>A1</option>
+            <option>A2</option>
+            <option>B1</option>
+            <option>B2</option>
+          </select>
+          <select id="filter-genre">
+            <option value="">Все жанры</option>
+            <option value="Cuento clásico">Cuento clásico</option>
+            <option value="Fábula">Fábula</option>
+            <option value="Mito">Mito</option>
+            <option value="Leyenda">Leyenda</option>
+          </select>
         </div>
-
-        <div class="stories-container" id="stories-list">
-          {% for story in stories %}
-          <div class="item">
-            <strong>{{ story.title }}</strong> ({{ story.level }}, {{
-            story.genre }})
-            <form method="POST" action="/admin/delete-story/{{ story.id }}">
-              <button type="submit">Удалить</button>
-            </form>
-          </div>
-          {% endfor %}
+        <div class="list">
+          <!-- Сюда подгружается список через шаблон Flask -->
         </div>
       </div>
     </div>
 
     <script>
-      const slugInput = document.getElementById("slug");
-      const levelSelect = document.getElementById("level");
-      const audioUrlInput = document.getElementById("audio_url");
-      const genreSelect = document.getElementById("genre");
-      const formTitle = document.getElementById("form-title");
+      function switchTab(tab) {
+        const form = document.getElementById("form");
+        const title = document.getElementById("form-title");
+        const genreSelect = document.getElementById("genre-select");
 
-      const BASE_AUDIO_URL = "https://moki-audio.vercel.app/";
-
-      const genresTales = [
-        "Cuento clásico",
-        "Cuento de hadas",
-        "Fábula",
-        "Cuento de animales",
-        "Cuento de aventuras",
-        "Cuento de humor",
-        "Cuento de terror",
-      ];
-
-      const genresStories = [
-        "Aventura",
-        "Terror",
-        "Humor",
-        "Amistad",
-        "Viajes",
-        "Medicina",
-        "Tecnología",
-      ];
-
-      function updateSlug() {
-        const slug = document
-          .getElementById("title")
-          .value.toLowerCase()
-          .replace(/[^a-z0-9а-яё\s]/gi, "")
-          .trim()
-          .replace(/\s+/g, "-");
-        slugInput.value = slug;
-        updateAudioUrl();
-      }
-
-      function updateAudioUrl() {
-        const slug = slugInput.value.trim();
-        const level = levelSelect.value.trim().toLowerCase();
-        if (slug && level) {
-          audioUrlInput.value = `${BASE_AUDIO_URL}${level}/${slug}.ogg`;
+        if (tab === "tales") {
+          title.textContent = "Добавить сказку";
+          form.action = "/admin/add";
+          genreSelect.innerHTML = `
+            <option value="">Выбери жанр</option>
+            <option value="Cuento clásico">Cuento clásico</option>
+            <option value="Fábula">Fábula</option>
+            <option value="Mito">Mito</option>
+            <option value="Leyenda">Leyenda</option>
+          `;
+          document.getElementById("tab-tales").classList.add("active");
+          document.getElementById("tab-stories").classList.remove("active");
         } else {
-          audioUrlInput.value = "";
+          title.textContent = "Добавить рассказ";
+          form.action = "/admin/add-story";
+          genreSelect.innerHTML = `
+            <option value="">Выбери жанр</option>
+            <option value="Ciencia">Ciencia</option>
+            <option value="Viajes">Viajes</option>
+            <option value="Terror">Terror</option>
+            <option value="Humor">Humor</option>
+            <option value="Tecnología">Tecnología</option>
+          `;
+          document.getElementById("tab-stories").classList.add("active");
+          document.getElementById("tab-tales").classList.remove("active");
         }
       }
-
-      function switchMode(mode) {
-        if (mode === "tales") {
-          formTitle.innerText = "Добавить сказку";
-          fillGenreOptions(genresTales);
-          document.getElementById("tales-list").classList.add("active");
-          document.getElementById("stories-list").classList.remove("active");
-          document.getElementById("add-form").action = "/admin/add";
-        } else {
-          formTitle.innerText = "Добавить рассказ";
-          fillGenreOptions(genresStories);
-          document.getElementById("stories-list").classList.add("active");
-          document.getElementById("tales-list").classList.remove("active");
-          document.getElementById("add-form").action = "/admin/add-story";
-        }
-      }
-
-      function fillGenreOptions(genres) {
-        genreSelect.innerHTML = "";
-        genres.forEach((genre) => {
-          const option = document.createElement("option");
-          option.value = genre;
-          option.innerText = genre;
-          genreSelect.appendChild(option);
-        });
-      }
-
-      document.getElementById("title").addEventListener("input", updateSlug);
-      levelSelect.addEventListener("change", updateAudioUrl);
-      slugInput.addEventListener("input", updateAudioUrl);
-
-      // Открываем сказки по умолчанию
-      switchMode("tales");
     </script>
   </body>
 </html>
