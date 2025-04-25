@@ -3,8 +3,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
-from models import FairyTale, Story
-from db import db
+
+from db import db        # СНАЧАЛА импортируем db
+from models import FairyTale, Story  # ПОТОМ импортируем модели
 
 load_dotenv()
 
@@ -16,6 +17,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.template_folder = "admin/templates"
 
 db.init_app(app)
+
 
 @app.route('/')
 def home():
