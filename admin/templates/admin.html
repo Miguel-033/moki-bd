@@ -199,6 +199,18 @@
           document.getElementById("tab-stories").classList.add("active");
           document.getElementById("tab-tales").classList.remove("active");
         }
+
+        // Автозаполнение slug по названию
+        document
+          .querySelector('input[name="title"]')
+          .addEventListener("input", function () {
+            const slug = this.value
+              .toLowerCase()
+              .replace(/[^a-z0-9а-яё\s]/gi, "")
+              .trim()
+              .replace(/\s+/g, "-");
+            document.querySelector('input[name="slug"]').value = slug;
+          });
       }
     </script>
   </body>
