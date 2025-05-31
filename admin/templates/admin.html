@@ -2,19 +2,37 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Админ-панель сказок и рассказов</title>
+    <title>Админ-панель</title>
     <style>
       body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-family: "Segoe UI", Tahoma, sans-serif;
         background-color: #f4f6f8;
-        margin: 0;
         padding: 40px;
-        color: #333;
+        margin: 0;
       }
 
       h1,
       h2 {
         color: #2c3e50;
+      }
+
+      .tabs {
+        margin-bottom: 20px;
+      }
+
+      .tabs button {
+        margin-right: 10px;
+        background-color: #3498db;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .tabs button.active {
+        background-color: #1d6fa5;
       }
 
       .container {
@@ -24,7 +42,7 @@
       }
 
       .card {
-        background: #fff;
+        background: white;
         padding: 25px;
         border-radius: 8px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
@@ -47,10 +65,9 @@
         font-size: 16px;
         border: 1px solid #ccc;
         border-radius: 4px;
-        box-sizing: border-box;
       }
 
-      button {
+      button[type="submit"] {
         background-color: #2ecc71;
         color: white;
         padding: 10px 20px;
@@ -61,45 +78,54 @@
         align-self: flex-start;
       }
 
-      button:hover {
+      button[type="submit"]:hover {
         background-color: #27ae60;
       }
 
-      .tabs {
-        margin-bottom: 20px;
-      }
-      .tabs button {
-        margin-right: 10px;
-        background-color: #3498db;
-        color: white;
-        padding: 8px 16px;
-        border: none;
-        border-radius: 5px;
-        font-weight: bold;
-        cursor: pointer;
-      }
-
-      .tabs button.active {
-        background-color: #1d6fa5;
-      }
-
-      .filters {
+      .filters-bar {
         display: flex;
-        gap: 10px;
+        justify-content: space-between;
         margin-bottom: 15px;
       }
 
-      .filters select {
-        flex: 1;
-        padding: 8px;
+      .level-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .level-buttons button {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        background-color: #eee;
+        cursor: pointer;
+      }
+
+      .level-buttons button.active {
+        background-color: #2980b9;
+        color: white;
+      }
+
+      .genre-select select {
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 15px;
       }
 
       .list {
-        min-height: 100px;
         background: white;
+        padding: 15px;
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        padding: 15px;
+      }
+
+      .list-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+      }
+
+      .list-item:last-child {
+        border-bottom: none;
       }
     </style>
   </head>
@@ -121,10 +147,10 @@
           <input type="text" name="slug" placeholder="Slug" required />
           <select name="level" required>
             <option value="">Выбери уровень</option>
-            <option value="A1">A1</option>
-            <option value="A2">A2</option>
-            <option value="B1">B1</option>
-            <option value="B2">B2</option>
+            <option>A1</option>
+            <option>A2</option>
+            <option>B1</option>
+            <option>B2</option>
           </select>
           <select name="genre" required id="genre-select">
             <option value="">Выбери жанр</option>
@@ -145,29 +171,49 @@
 
       <div class="card">
         <h2>Список</h2>
-        <div class="filters">
-          <select id="filter-level">
-            <option value="">Все уровни</option>
-            <option>A1</option>
-            <option>A2</option>
-            <option>B1</option>
-            <option>B2</option>
-          </select>
-          <select id="filter-genre">
-            <option value="">Все жанры</option>
-            <option value="Cuento clásico">Cuento clásico</option>
-            <option value="Fábula">Fábula</option>
-            <option value="Mito">Mito</option>
-            <option value="Leyenda">Leyenda</option>
-          </select>
+        <div class="filters-bar">
+          <div class="level-buttons" id="level-buttons">
+            <button data-level="">Все</button>
+            <button data-level="A1">A1</button>
+            <button data-level="A2">A2</button>
+            <button data-level="B1">B1</button>
+            <button data-level="B2">B2</button>
+          </div>
+          <div class="genre-select">
+            <select id="filter-genre">
+              <option value="">Все жанры</option>
+              <option value="Cuento clásico">Cuento clásico</option>
+              <option value="Fábula">Fábula</option>
+              <option value="Mito">Mito</option>
+              <option value="Leyenda">Leyenda</option>
+              <option value="Ciencia">Ciencia</option>
+              <option value="Viajes">Viajes</option>
+              <option value="Terror">Terror</option>
+              <option value="Humor">Humor</option>
+              <option value="Tecnología">Tecnología</option>
+            </select>
+          </div>
         </div>
-        <div class="list">
-          <!-- Сюда подгружается список через шаблон Flask -->
+        <div class="list" id="content-list">
+          <p>⚠️ Контент загружается из файла <code>data.json</code>.</p>
+          <!-- Здесь будет список -->
         </div>
       </div>
     </div>
 
     <script>
+      const titleInput = document.querySelector('input[name="title"]');
+      const slugInput = document.querySelector('input[name="slug"]');
+
+      titleInput.addEventListener("input", () => {
+        const slug = titleInput.value
+          .toLowerCase()
+          .replace(/[^a-zа-я0-9\s]/gi, "")
+          .trim()
+          .replace(/\s+/g, "-");
+        slugInput.value = slug;
+      });
+
       function switchTab(tab) {
         const form = document.getElementById("form");
         const title = document.getElementById("form-title");
@@ -177,41 +223,43 @@
           title.textContent = "Добавить сказку";
           form.action = "/admin/add";
           genreSelect.innerHTML = `
-            <option value="">Выбери жанр</option>
-            <option value="Cuento clásico">Cuento clásico</option>
-            <option value="Fábula">Fábula</option>
-            <option value="Mito">Mito</option>
-            <option value="Leyenda">Leyenda</option>
-          `;
+          <option value="">Выбери жанр</option>
+          <option value="Cuento clásico">Cuento clásico</option>
+          <option value="Fábula">Fábula</option>
+          <option value="Mito">Mito</option>
+          <option value="Leyenda">Leyenda</option>
+        `;
           document.getElementById("tab-tales").classList.add("active");
           document.getElementById("tab-stories").classList.remove("active");
         } else {
           title.textContent = "Добавить рассказ";
           form.action = "/admin/add-story";
           genreSelect.innerHTML = `
-            <option value="">Выбери жанр</option>
-            <option value="Ciencia">Ciencia</option>
-            <option value="Viajes">Viajes</option>
-            <option value="Terror">Terror</option>
-            <option value="Humor">Humor</option>
-            <option value="Tecnología">Tecnología</option>
-          `;
+          <option value="">Выбери жанр</option>
+          <option value="Ciencia">Ciencia</option>
+          <option value="Viajes">Viajes</option>
+          <option value="Terror">Terror</option>
+          <option value="Humor">Humor</option>
+          <option value="Tecnología">Tecnología</option>
+        `;
           document.getElementById("tab-stories").classList.add("active");
           document.getElementById("tab-tales").classList.remove("active");
         }
-
-        // Автозаполнение slug по названию
-        document
-          .querySelector('input[name="title"]')
-          .addEventListener("input", function () {
-            const slug = this.value
-              .toLowerCase()
-              .replace(/[^a-z0-9а-яё\s]/gi, "")
-              .trim()
-              .replace(/\s+/g, "-");
-            document.querySelector('input[name="slug"]').value = slug;
-          });
       }
+
+      document.querySelectorAll("#level-buttons button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll("#level-buttons button")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          // TODO: здесь фильтрация
+        });
+      });
+
+      document.getElementById("filter-genre").addEventListener("change", () => {
+        // TODO: здесь фильтрация
+      });
     </script>
   </body>
 </html>

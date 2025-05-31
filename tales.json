@@ -1,0 +1,38 @@
+[
+  {
+    "type": "fairy_tale",
+    "slug": "el-zorro-inteligente",
+    "title": "El zorro inteligente",
+    "level": "A1",
+    "genre": "Fábula",
+    "text": "Había una vez un zorro muy astuto que siempre encontraba comida...",
+    "audio_url": "https://cdn.jsdelivr.net/gh/Miguel-033/moki-audio/a1/Los-tres-cerditos.ogg"
+  },
+  {
+    "type": "fairy_tale",
+    "slug": "el-sapo-y-la-luna",
+    "title": "El sapo y la luna",
+    "level": "A2",
+    "genre": "Cuento clásico",
+    "text": "Un sapo miraba la luna cada noche y soñaba con volar...",
+    "audio_url": "https://cdn.jsdelivr.net/gh/Miguel-033/moki-audio/a2/Caperucita-Roja.ogg"
+  },
+  {
+    "type": "story",
+    "slug": "vacaciones-en-valencia",
+    "title": "Vacaciones en Valencia",
+    "level": "B1",
+    "genre": "Viajes",
+    "text": "Durante el verano, fui a Valencia y visité la Ciudad de las Artes...",
+    "audio_url": "https://cdn.jsdelivr.net/gh/Miguel-033/moki-audio/b1/La-Cenicienta.ogg"
+  },
+  {
+    "type": "story",
+    "slug": "el-misterio-del-laboratorio",
+    "title": "El misterio del laboratorio",
+    "level": "B2",
+    "genre": "Ciencia",
+    "text": "Un científico desapareció en su laboratorio y dejó pistas extrañas...",
+    "audio_url": "https://cdn.jsdelivr.net/gh/Miguel-033/moki-audio/b2/La-Bella-Durmiente.ogg"
+  }
+]
